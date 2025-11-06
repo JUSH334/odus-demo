@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Deploy Contracts via MetaMask</title>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -113,18 +113,31 @@
             try {
                 if (typeof window.ethereum === 'undefined') {
                     showMessage('MetaMask not installed!', 'error');
+                    log('ERROR: MetaMask not detected');
                     return;
                 }
 
                 log('Requesting accounts...');
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
-                account = accounts[0];
+                // Request accounts first
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                log('Accounts received: ' + accounts[0]);
 
+                // Initialize provider AFTER getting accounts
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.ready; // Wait for provider to be ready
+                
+                signer = provider.getSigner();
+                account = await signer.getAddress(); // Use signer to get address
+
+                log('Provider initialized successfully');
+                
+                // Check network
                 const network = await provider.getNetwork();
-                log('Connected to network: ' + network.chainId);
+                log('Connected to Chain ID: ' + network.chainId);
 
                 if (network.chainId !== 252501) {
                     showMessage('Please switch to DIDLab network (Chain ID: 252501)', 'error');
@@ -132,7 +145,8 @@
                     return;
                 }
 
-                const balance = await provider.getBalance(account);
+                // Get balance
+                const balance = await signer.getBalance();
                 const balanceInTT = ethers.utils.formatEther(balance);
 
                 document.getElementById('status').textContent = 'Connected';
@@ -142,9 +156,9 @@
                 document.getElementById('connectBtn').disabled = true;
                 document.getElementById('deployPRBtn').disabled = false;
                 document.getElementById('deployPaymentBtn').disabled = false;
+                document.getElementById('downloadBtn').disabled = false;
 
                 showMessage('Connected successfully!', 'success');
-                log('Connected: ' + account);
                 log('Balance: ' + balanceInTT + ' TT');
 
                 deploymentData.deployer = account;
@@ -152,6 +166,7 @@
             } catch (error) {
                 showMessage('Connection failed: ' + error.message, 'error');
                 log('ERROR: ' + error.message);
+                console.error('Full error:', error);
             }
         }
 
@@ -200,6 +215,48 @@
             link.download = 'didlab-deployment.json';
             link.click();
         }
+
+        // Network change listeners
+        if (window.ethereum) {
+            window.ethereum.on('chainChanged', (chainId) => {
+                log('Network changed to: ' + chainId);
+                window.location.reload();
+            });
+
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                    log('MetaMask is locked');
+                    showMessage('MetaMask is locked', 'error');
+                } else {
+                    log('Account changed to: ' + accounts[0]);
+                    window.location.reload();
+                }
+            });
+        }
+
+        // Check on page load
+        window.addEventListener('load', async () => {
+            if (typeof ethers !== 'undefined') {
+                log('✅ Ethers.js loaded successfully (v' + ethers.version + ')');
+            } else {
+                log('❌ Failed to load ethers.js');
+                showMessage('Failed to load ethers.js library', 'error');
+            }
+
+            if (typeof window.ethereum !== 'undefined') {
+                log('✅ MetaMask detected');
+                
+                // Check if already connected
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_accounts' 
+                });
+                if (accounts.length > 0) {
+                    log('Previously connected account found: ' + accounts[0]);
+                }
+            } else {
+                log('❌ MetaMask not detected');
+            }
+        });
     </script>
 </body>
 </html>
