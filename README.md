@@ -274,4 +274,3 @@ open https://explorer.didlab.org/address/0x053aC9dE77E6117Ee01Cb1c5854b8b67CC4BF
 - **Faucet**: https://faucet.didlab.org
 - **RPC Endpoint**: https://eth.didlab.org
 
-For issues or questions, please open an issue in the repository.
