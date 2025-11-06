@@ -198,8 +198,8 @@
                 log('Waiting for deployment confirmation...');
                 await contract.deployed();
                 
-                log('✅ PatientRegistry deployed at: ' + contract.address);
-                showMessage('✅ PatientRegistry deployed successfully at: ' + contract.address, 'success');
+                log('SUCCESS: PatientRegistry deployed at: ' + contract.address);
+                showMessage('SUCCESS: PatientRegistry deployed successfully at: ' + contract.address, 'success');
                 
                 deploymentData.contracts.PatientRegistry = {
                     address: contract.address,
@@ -243,8 +243,8 @@
                 log('Waiting for deployment confirmation...');
                 await contract.deployed();
                 
-                log('✅ Payment contract deployed at: ' + contract.address);
-                showMessage('✅ Payment contract deployed successfully at: ' + contract.address, 'success');
+                log('SUCCESS: Payment contract deployed at: ' + contract.address);
+                showMessage('SUCCESS: Payment contract deployed successfully at: ' + contract.address, 'success');
                 
                 deploymentData.contracts.Payment = {
                     address: contract.address,
@@ -278,7 +278,7 @@
             link.href = url;
             link.download = 'didlab-deployment.json';
             link.click();
-            log('✅ Downloaded deployment.json');
+            log('Downloaded deployment.json');
         }
 
         // Network change listeners
@@ -302,14 +302,14 @@
         // Check on page load
         window.addEventListener('load', async () => {
             if (typeof ethers !== 'undefined') {
-                log('✅ Ethers.js loaded successfully (v' + ethers.version + ')');
+                log('Ethers.js loaded successfully (v' + ethers.version + ')');
             } else {
-                log('❌ Failed to load ethers.js');
+                log('FAILED: Could not load ethers.js');
                 showMessage('Failed to load ethers.js library', 'error');
             }
 
             if (typeof window.ethereum !== 'undefined') {
-                log('✅ MetaMask detected');
+                log('MetaMask detected');
                 
                 const accounts = await window.ethereum.request({ 
                     method: 'eth_accounts' 
@@ -318,7 +318,7 @@
                     log('Previously connected account found: ' + accounts[0]);
                 }
             } else {
-                log('❌ MetaMask not detected');
+                log('MetaMask not detected');
             }
         });
     </script>
