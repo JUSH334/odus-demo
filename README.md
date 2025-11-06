@@ -172,7 +172,7 @@ git log -1 --format="%H"
 
 **Commit Hash**: [INSERT COMMIT HASH - Run: git log -1 --format="%H"]
 
-**Repository Link**: [[INSERT YOUR GITHUB/GITLAB REPOSITORY URL]](https://github.com/JUSH334/odus-demo.git)
+**Repository Link**: https://github.com/JUSH334/odus-demo.git
 
 ### Verification
 To verify this submission state:
