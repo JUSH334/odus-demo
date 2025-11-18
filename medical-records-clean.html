@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Records - SecureHealth Chain</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #1a1a1a;
+            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .header p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .wallet-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        
+        .status-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-value {
+            font-weight: 500;
+            color: #1a1a1a;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 14px;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        
+        .card h2 {
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .file-upload {
+            border: 2px dashed #ced4da;
+            border-radius: 6px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafbfc;
+        }
+        
+        .file-upload:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+        
+        .file-upload input {
+            display: none;
+        }
+        
+        .file-upload-text {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+        
+        .file-upload-subtext {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 13px;
+            border-left: 3px solid #007bff;
+        }
+        
+        .records-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .record-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+        
+        .record-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+        
+        .record-type {
+            background: #007bff;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .record-id {
+            font-size: 11px;
+            color: #6c757d;
+            font-family: 'SF Mono', Monaco, monospace;
+            margin-top: 5px;
+        }
+        
+        .record-title {
+            margin-bottom: 10px;
+            color: #1a1a1a;
+            font-weight: 500;
+            font-size: 16px;
+        }
+        
+        .record-date {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .record-hash {
+            font-size: 11px;
+            color: #6c757d;
+            font-family: 'SF Mono', Monaco, monospace;
+            word-break: break-all;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .record-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .record-actions button {
+            flex: 1;
+            padding: 8px;
+            font-size: 13px;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state h3 {
+            margin: 20px 0 10px;
+            color: #495057;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #007bff;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .inactive-badge {
+            color: #dc3545;
+            font-weight: 500;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 768px) {
+            .wallet-status {
+                grid-template-columns: 1fr;
+            }
+            
+            .records-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Medical Records Management</h1>
+            <p>Securely store and manage your medical records on blockchain</p>
+            
+            <div class="wallet-status">
+                <div class="status-item">
+                    <span class="status-label">Network Status</span>
+                    <span class="status-value" id="networkStatus">Not Connected</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Wallet Address</span>
+                    <span class="status-value" id="walletAddress">-</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Authorization</span>
+                    <span class="status-value" id="authStatus">-</span>
+                </div>
+                <div class="status-item" style="display: flex; align-items: flex-end;">
+                    <button class="btn btn-primary" id="connectBtn" onclick="connectWallet()">
+                        Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="stats" id="statsContainer" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="totalRecords">0</div>
+                <div class="stat-label">Total Records</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeRecords">0</div>
+                <div class="stat-label">Active Records</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="uploadedToday">0</div>
+                <div class="stat-label">Uploaded Today</div>
+            </div>
+        </div>
+
+        <div class="card" id="uploadSection" style="display: none;">
+            <h2>Upload New Medical Record</h2>
+            
+            <form id="uploadForm" onsubmit="uploadRecord(event)">
+                <div class="form-group">
+                    <label>Record Type</label>
+                    <select id="recordType" required>
+                        <option value="">Select record type...</option>
+                        <option value="lab">Laboratory Results</option>
+                        <option value="prescription">Prescription</option>
+                        <option value="imaging">Imaging (X-Ray, MRI, CT)</option>
+                        <option value="visit">Doctor Visit Notes</option>
+                        <option value="vaccination">Vaccination Record</option>
+                        <option value="surgery">Surgery Report</option>
+                        <option value="discharge">Discharge Summary</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Record Title</label>
+                    <input type="text" id="recordTitle" placeholder="E.g., Blood Test Results - January 2025" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="recordDescription" placeholder="Additional notes or description..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload File</label>
+                    <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                        <div class="file-upload-text">Click to upload file</div>
+                        <div class="file-upload-subtext">PDF, JPEG, PNG (Max 10MB)</div>
+                        <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" required onchange="handleFileSelect(event)">
+                    </div>
+                    <div id="fileInfo" class="file-info" style="display: none;"></div>
+                </div>
+
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancel</button>
+                    <button type="submit" class="btn btn-success" id="uploadBtn">
+                        Upload to Blockchain
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card" id="recordsSection" style="display: none;">
+            <h2>My Medical Records</h2>
+            
+            <div id="recordsContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 15px; color: #6c757d;">Loading your records...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Contract configuration - UPDATE THESE VALUES
+        const CONTRACT_ADDRESS = '0xYourDeployedMedicalRecordsContractAddress';
+        const CONTRACT_ABI = [
+            "function authorizePatient(address patientAddress) returns (bool)",
+            "function addMedicalRecord(string recordId, string encryptedDataHash, string recordType, string metadata) returns (bool)",
+            "function getMedicalRecord(address patientAddress, uint256 recordIndex) view returns (string recordId, string encryptedDataHash, string recordType, uint256 timestamp, address uploadedBy, bool isActive, string metadata)",
+            "function getPatientRecordCount(address patientAddress) view returns (uint256)",
+            "function updateMedicalRecord(uint256 recordIndex, string encryptedDataHash, string metadata) returns (bool)",
+            "function deactivateMedicalRecord(uint256 recordIndex) returns (bool)",
+            "function isPatientAuthorized(address patientAddress) view returns (bool)",
+            "function amIAuthorized() view returns (bool)",
+            "function getMyRecordCount() view returns (uint256)",
+            "event MedicalRecordAdded(address indexed patientAddress, string recordId, string recordType, uint256 timestamp, address uploadedBy)"
+        ];
+
+        let provider, signer, contract, userAddress;
+        let selectedFile = null;
+
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    showAlert('Please install MetaMask to use this feature', 'error');
+                    return;
+                }
+
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
+
+                const network = await provider.getNetwork();
+                if (network.chainId !== 252501) {
+                    showAlert('Please switch to DIDLab network (Chain ID: 252501)', 'error');
+                    return;
+                }
+
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+                const isAuthorized = await contract.amIAuthorized();
+
+                document.getElementById('networkStatus').textContent = 'Connected';
+                document.getElementById('walletAddress').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                document.getElementById('authStatus').textContent = isAuthorized ? 'Authorized' : 'Not Authorized';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('connectBtn').textContent = 'Connected';
+
+                if (!isAuthorized) {
+                    showAlert('Your address is not authorized to upload records. Please contact the administrator.', 'error');
+                    return;
+                }
+
+                document.getElementById('statsContainer').style.display = 'grid';
+                document.getElementById('uploadSection').style.display = 'block';
+                document.getElementById('recordsSection').style.display = 'block';
+
+                showAlert('Connected successfully', 'success');
+                await loadRecords();
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                showAlert('Failed to connect: ' + error.message, 'error');
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('File size must be less than 10MB', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            selectedFile = file;
+
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.style.display = 'block';
+            fileInfo.innerHTML = `
+                <strong>Selected File</strong><br>
+                Name: ${file.name}<br>
+                Size: ${(file.size / 1024).toFixed(2)} KB<br>
+                Type: ${file.type}
+            `;
+        }
+
+        async function uploadRecord(event) {
+            event.preventDefault();
+
+            if (!selectedFile) {
+                showAlert('Please select a file to upload', 'error');
+                return;
+            }
+
+            try {
+                const uploadBtn = document.getElementById('uploadBtn');
+                uploadBtn.disabled = true;
+                uploadBtn.textContent = 'Uploading...';
+
+                const recordType = document.getElementById('recordType').value;
+                const recordTitle = document.getElementById('recordTitle').value;
+                const recordDescription = document.getElementById('recordDescription').value;
+
+                const fileData = await readFileAsBase64(selectedFile);
+                const dataHash = ethers.utils.id(fileData);
+
+                const recordId = 'REC-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+                const metadata = JSON.stringify({
+                    title: recordTitle,
+                    description: recordDescription,
+                    fileName: selectedFile.name,
+                    fileSize: selectedFile.size,
+                    fileType: selectedFile.type,
+                    uploadDate: new Date().toISOString()
+                });
+
+                const tx = await contract.addMedicalRecord(
+                    recordId,
+                    dataHash,
+                    recordType,
+                    metadata
+                );
+
+                showAlert('Transaction submitted. Waiting for confirmation...', 'info');
+
+                const receipt = await tx.wait();
+
+                showAlert('Medical record uploaded successfully', 'success');
+
+                resetForm();
+                await loadRecords();
+
+            } catch (error) {
+                console.error('Upload error:', error);
+                showAlert('Upload failed: ' + error.message, 'error');
+            } finally {
+                const uploadBtn = document.getElementById('uploadBtn');
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload to Blockchain';
+            }
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('uploadForm').reset();
+            document.getElementById('fileInfo').style.display = 'none';
+            selectedFile = null;
+        }
+
+        async function loadRecords() {
+            try {
+                const recordsContainer = document.getElementById('recordsContainer');
+                recordsContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p style="margin-top: 15px;">Loading records...</p></div>';
+
+                const recordCount = await contract.getPatientRecordCount(userAddress);
+
+                if (recordCount.toNumber() === 0) {
+                    recordsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <h3>No medical records yet</h3>
+                            <p>Upload your first medical record to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const records = [];
+                for (let i = 0; i < recordCount.toNumber(); i++) {
+                    const record = await contract.getMedicalRecord(userAddress, i);
+                    records.push({
+                        index: i,
+                        recordId: record.recordId,
+                        encryptedDataHash: record.encryptedDataHash,
+                        recordType: record.recordType,
+                        timestamp: record.timestamp.toNumber(),
+                        uploadedBy: record.uploadedBy,
+                        isActive: record.isActive,
+                        metadata: JSON.parse(record.metadata || '{}')
+                    });
+                }
+
+                document.getElementById('totalRecords').textContent = records.length;
+                document.getElementById('activeRecords').textContent = records.filter(r => r.isActive).length;
+                
+                const today = new Date().setHours(0, 0, 0, 0);
+                const uploadedToday = records.filter(r => new Date(r.timestamp * 1000).setHours(0, 0, 0, 0) === today).length;
+                document.getElementById('uploadedToday').textContent = uploadedToday;
+
+                recordsContainer.innerHTML = '<div class="records-grid">' + 
+                    records.reverse().map(record => createRecordCard(record)).join('') +
+                    '</div>';
+
+            } catch (error) {
+                console.error('Load records error:', error);
+                document.getElementById('recordsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Error loading records</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function createRecordCard(record) {
+            const date = new Date(record.timestamp * 1000);
+            const recordTypeLabels = {
+                'lab': 'Lab Results',
+                'prescription': 'Prescription',
+                'imaging': 'Imaging',
+                'visit': 'Visit Notes',
+                'vaccination': 'Vaccination',
+                'surgery': 'Surgery',
+                'discharge': 'Discharge',
+                'other': 'Other'
+            };
+
+            return `
+                <div class="record-card" ${!record.isActive ? 'style="opacity: 0.5;"' : ''}>
+                    <div class="record-header">
+                        <div>
+                            <div class="record-type">${recordTypeLabels[record.recordType] || record.recordType}</div>
+                            <div class="record-id">${record.recordId}</div>
+                        </div>
+                        ${record.isActive ? '' : '<span class="inactive-badge">Inactive</span>'}
+                    </div>
+                    
+                    <h4 class="record-title">${record.metadata.title || 'Untitled Record'}</h4>
+                    
+                    ${record.metadata.description ? `<p style="font-size: 13px; color: #6c757d; margin-bottom: 10px;">${record.metadata.description}</p>` : ''}
+                    
+                    <div class="record-date">
+                        ${date.toLocaleDateString()} at ${date.toLocaleTimeString()}
+                    </div>
+                    
+                    ${record.metadata.fileName ? `
+                        <div style="font-size: 12px; color: #6c757d; margin-top: 10px;">
+                            File: ${record.metadata.fileName} (${(record.metadata.fileSize / 1024).toFixed(2)} KB)
+                        </div>
+                    ` : ''}
+                    
+                    <div class="record-hash">
+                        Hash: ${record.encryptedDataHash.slice(0, 20)}...${record.encryptedDataHash.slice(-20)}
+                    </div>
+                    
+                    ${record.isActive ? `
+                        <div class="record-actions">
+                            <button class="btn btn-secondary" onclick="viewRecord(${record.index})">
+                                View Details
+                            </button>
+                            <button class="btn btn-danger" onclick="deactivateRecord(${record.index})">
+                                Remove
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        async function viewRecord(index) {
+            try {
+                const record = await contract.getMedicalRecord(userAddress, index);
+                const metadata = JSON.parse(record.metadata);
+                alert(`Record Details:\n\nID: ${record.recordId}\nType: ${record.recordType}\nTitle: ${metadata.title}\nUploaded: ${new Date(record.timestamp * 1000).toLocaleString()}`);
+            } catch (error) {
+                showAlert('Failed to view record: ' + error.message, 'error');
+            }
+        }
+
+        async function deactivateRecord(index) {
+            if (!confirm('Are you sure you want to deactivate this record?')) {
+                return;
+            }
+
+            try {
+                const tx = await contract.deactivateMedicalRecord(index);
+                showAlert('Deactivating record...', 'info');
+                await tx.wait();
+                showAlert('Record deactivated successfully', 'success');
+                await loadRecords();
+            } catch (error) {
+                showAlert('Failed to deactivate record: ' + error.message, 'error');
+            }
+        }
+
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.appendChild(alert);
+
+            setTimeout(() => {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }, 5000);
+        }
+
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                    location.reload();
+                } else {
+                    connectWallet();
+                }
+            });
+
+            window.ethereum.on('chainChanged', () => {
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html>

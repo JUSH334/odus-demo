@@ -1,37 +1,56 @@
 {
-  "name": "securehealthchain",
-  "version": "1.0.0",
-  "description": "Decentralized Healthcare Payment Platform on DIDLab Blockchain",
+  "name": "securehealthchain-medical-records",
+  "version": "2.0.0",
+  "description": "Blockchain-based medical records management system with MetaMask integration",
   "main": "backend/server.js",
   "scripts": {
-    "compile": "npx hardhat compile",
-    "check-balance": "npx hardhat run scripts/check-balance.js --network didlab",
-    "deploy:didlab": "npx hardhat run scripts/deploy-didlab.js --network didlab",
-    "deploy:local": "npx hardhat run scripts/deploy-didlab.js --network localhost",
-    "node": "npx hardhat node",
-    "test": "npx hardhat test",
-    "server": "node backend/server.js",
-    "dev": "nodemon backend/server.js"
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:didlab": "hardhat run scripts/deploy-medical-records.js --network didlab",
+    "deploy:local": "hardhat run scripts/deploy-medical-records.js --network localhost",
+    "check-balance": "hardhat run scripts/check-balance.js --network didlab",
+    "check-nonce": "hardhat run scripts/check-nonce.js --network didlab",
+    "clear-nonce": "hardhat run scripts/clear-nonce.js --network didlab",
+    "node": "hardhat node"
   },
   "keywords": [
     "blockchain",
     "healthcare",
-    "didlab",
+    "medical-records",
     "ethereum",
-    "smart-contracts"
+    "metamask",
+    "ipfs",
+    "web3"
   ],
-  "author": "Team Odus",
+  "author": "SecureHealth Chain Team",
   "license": "MIT",
-  "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "hardhat": "^2.19.0"
-  },
   "dependencies": {
-    "dotenv": "^16.3.1",
-    "ethers": "^6.9.0",
     "express": "^4.18.2",
-    "mongoose": "^8.0.0",
+    "mongoose": "^7.5.0",
     "cors": "^2.8.5",
-    "nodemailer": "^6.9.7"
+    "dotenv": "^16.3.1",
+    "ethers": "^5.7.2",
+    "nodemailer": "^6.9.4",
+    "multer": "^1.4.5-lts.1",
+    "ipfs-http-client": "^60.0.1",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "hardhat": "^2.17.1",
+    "nodemon": "^3.0.1",
+    "chai": "^4.3.7",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/securehealthchain"
   }
 }
