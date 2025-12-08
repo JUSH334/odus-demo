@@ -905,7 +905,6 @@ SecureHealth Chain is not just a proof-of-concept—it is a working, tested, pro
 **Frontend:**
 - HTML5, CSS3, JavaScript (ES6+)
 - Ethers.js v5.7.2 (Web3 integration)
-- Responsive design (mobile-friendly)
 
 **Backend:**
 - Node.js v18+
