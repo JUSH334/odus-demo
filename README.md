@@ -1,4 +1,4 @@
-ODUS DEPLOYMENT: https://jush334.github.io/odus-demo/
+ODUS DEPLOYMENT: https://jush334.github.io/odus-securehealthchain-project/
 
 
 # Payment Smart Contract - DIDLab Network
