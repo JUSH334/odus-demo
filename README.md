@@ -2,6 +2,8 @@ ODUS DEPLOYMENT: https://jush334.github.io/odus-securehealthchain-project/
 
 ## If you wish to try the deployment yourself, using the link above this, follow the Demo Deployment Guide found in the "docs/demo/SecureHealth_Demo_Deployment_Guide" directory.
 
+Presentation Link: https://docs.google.com/presentation/d/1CA9w-ueT2w25Pn8oIRZk47Y8akwGEdNClpVnQo2FtSQ/edit?usp=sharing
+
 # SecurehealthChain: Payment Smart Contract - DIDLab Network
 
 Decentralized payment processing system on DIDLab QBFT blockchain for tracking healthcare payments with unique transaction IDs.
