@@ -1,6 +1,6 @@
 ODUS DEPLOYMENT: https://jush334.github.io/odus-securehealthchain-project/
 
-## If you wish to try the deployment yourself, follow the Demo Deployment Guide found in the "docs/demo/SecureHealth_Demo_Deployment_Guide" directory
+## If you wish to try the deployment yourself, using the link above this, follow the Demo Deployment Guide found in the "docs/demo/SecureHealth_Demo_Deployment_Guide" directory.
 
 # SecurehealthChain: Payment Smart Contract - DIDLab Network
 
